@@ -1,0 +1,10 @@
+# YOLOv8 dataset config for Reverse Logistics
+# Paths are relative to this file OR absolute. Ultralytics resolves both.
+path: ../dataset
+train: images/train
+val: images/val
+
+# Class IDs MUST match the order used in label .txt files.
+names:
+  0: damaged_item
+  1: empty_box
