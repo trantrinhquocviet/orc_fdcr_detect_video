@@ -24,5 +24,15 @@ if not _marker.exists() and os.environ.get("HUGGING_FACE_ACCESS_TOKEN"):
 # Add scripts/ to path so review_app can import sibling modules
 sys.path.insert(0, str(Path(__file__).resolve().parent / "scripts"))
 
+# Stub out ultralytics/torch so the app starts without them.
+# Train and Pipeline tabs will show an error if triggered on cloud.
+try:
+    import ultralytics  # noqa: F401
+except ImportError:
+    import types
+    _stub = types.ModuleType("ultralytics")
+    _stub.YOLO = None  # type: ignore[attr-defined]
+    sys.modules["ultralytics"] = _stub
+
 from scripts.review_app import main  # noqa: E402
 main()
