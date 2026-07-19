@@ -1029,12 +1029,8 @@ def _link_or_copy(src: Path, dst: Path) -> str:
 
 
 def import_tab(task: str, version: str) -> None:
-    st.title("Import frames")
-    st.caption(
-        "Extract → pick which frames go where → **Append** by default (adds to current "
-        "dataset, preserves your work). Use **Create new version** only when starting a "
-        "fresh annotation pass or re-extracting at a different fps."
-    )
+    st.title("📥 Tải video lên")
+    st.caption("Tải video → trích xuất frames → chọn frames muốn label → gửi vào dataset.")
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from extract_frames import derive_video_id, validate_video_id, extract
@@ -1046,27 +1042,22 @@ def import_tab(task: str, version: str) -> None:
         st.session_state.pop("import_pool_selected", None)
 
     # ============== Step 1: Extract video to pool ==============
-    st.markdown("### 📂 Step 1: Pick a video & extract frames")
+    st.markdown("### Bước 1 — Tải video lên")
 
     upload = st.file_uploader(
-        "Upload a video file", type=list(VIDEO_EXTS), key="import_upload",
-        label_visibility="collapsed",
+        "Chọn file video", type=list(VIDEO_EXTS), key="import_upload",
     )
-    path_text = st.text_input(
-        "…or paste the file path",
-        placeholder=r"C:\Users\OP-LT-0496\Downloads\video.mp4",
-        key="import_path",
-    )
-    url_text = st.text_input(
-        "…or paste a video URL (http/https)",
-        placeholder="https://example.com/path/video.mp4",
-        key="import_url",
-        help=(
-            f"Downloaded to `{URL_CACHE_DIR.relative_to(ROOT)}/<hash>.<ext>` "
-            f"and reused on subsequent runs of the same URL. "
-            f"Timeout {URL_DOWNLOAD_TIMEOUT_SEC}s."
-        ),
-    )
+    with st.expander("Tùy chọn khác (đường dẫn file hoặc URL)"):
+        path_text = st.text_input(
+            "Đường dẫn file trên máy",
+            placeholder=r"C:\Users\...\video.mp4",
+            key="import_path",
+        )
+        url_text = st.text_input(
+            "URL video (http/https)",
+            placeholder="https://example.com/video.mp4",
+            key="import_url",
+        )
     fps = st.slider(
         "Frames per second (higher = more frames to label)",
         min_value=0.5, max_value=5.0, value=1.0, step=0.5,
@@ -1082,7 +1073,7 @@ def import_tab(task: str, version: str) -> None:
         else:
             cache_target = _url_cache_path(url_clean)
             if st.button(
-                f"⬇️ Download `{cache_target.name}` (cache: not present yet)",
+                f"⬇️ Tải về từ URL",
                 use_container_width=True, key="import_url_download",
             ):
                 bar = st.progress(0.0, text=f"Downloading {url_clean}…")
@@ -1120,21 +1111,21 @@ def import_tab(task: str, version: str) -> None:
             auto_id = ""
 
     if video_path is None:
-        st.info("👆 Pick a video first.")
+        st.info("👆 Chọn file video ở trên để bắt đầu.")
     elif not auto_id:
         st.error(
-            f"This filename can't be used as-is: `{video_path.name}`. "
-            "Rename to letters / numbers / dashes only (e.g. `TTVN1066684755.mp4`)."
+            f"Tên file không hợp lệ: `{video_path.name}`. "
+            "Đổi tên chỉ dùng chữ, số, dấu gạch ngang (ví dụ: `TTVN1066684755.mp4`)."
         )
 
     can_extract = bool(video_path is not None and auto_id)
     if st.button(
-        "📥 Extract frames into pool",
+        "▶️ Trích xuất frames",
         type="primary", disabled=not can_extract,
         use_container_width=True, key="import_extract",
     ):
         IMPORT_DIR.mkdir(parents=True, exist_ok=True)
-        with st.spinner("Extracting…"):
+        with st.spinner("Đang trích xuất…"):
             try:
                 count = extract(
                     video_path=video_path, video_id=auto_id,
@@ -1142,34 +1133,23 @@ def import_tab(task: str, version: str) -> None:
                     output_dir=IMPORT_DIR,
                 )
             except Exception as e:  # noqa: BLE001
-                st.error(f"Extraction failed: {type(e).__name__}: {e}")
+                st.error(f"Lỗi: {type(e).__name__}: {e}")
                 return
         st.session_state.last_imported_video_id = auto_id
-        # Remember fps per video_id so Send can write fps to _meta.json.
-        # Re-extraction at a new fps overwrites — last value wins, which is
-        # what we want (the pool only ever holds the most-recent extraction's
-        # frames for that video_id since same-name files get overwritten on
-        # cv2.imwrite).
         st.session_state[f"_extracted_fps::{auto_id}"] = float(fps)
-        st.success(
-            f"✅ Extracted **{count}** frame(s) from `{auto_id}` into the pool. "
-            "Pick which to send below."
-        )
+        st.success(f"✅ Trích xuất **{count}** frames từ `{auto_id}`. Chọn frames bên dưới để thêm vào dataset.")
 
     st.markdown("---")
 
     # ============== Step 2: Per-frame selection ==============
-    st.markdown("### 🖼 Step 2: Pick which frames to send")
+    st.markdown("### Bước 2 — Chọn frames muốn label")
 
     if not IMPORT_DIR.exists():
-        st.info(
-            "Pool is empty. Extract a video above first. "
-            "Frames live in `dataset/_import/` until you assign them to a task."
-        )
+        st.info("Chưa có frames nào. Tải video lên và trích xuất ở Bước 1.")
         return
     pool = sorted(IMPORT_DIR.glob("*.jpg")) + sorted(IMPORT_DIR.glob("*.png"))
     if not pool:
-        st.info("Pool is empty. Extract a video above first.")
+        st.info("Chưa có frames nào. Tải video lên và trích xuất ở Bước 1.")
         return
 
     # Group by source video so user can clearly see which frames came from where.
@@ -3020,50 +3000,47 @@ def train_tab(task: str, version: str) -> None:
     else:
         st.caption(f"Status: **idle** — no run yet for `{task}` / `{version}`.")
 
-    # ---- Source-of-truth (root of version folder; updates immediately when
-    # LabelImg saves a .txt). This is the live state of your labeling. ----
+    # ---- Dataset status ----
     src_imgs = sum(1 for _ in data_root.glob("*.jpg")) + sum(1 for _ in data_root.glob("*.png"))
     src_lbls = sum(1 for p in data_root.glob("*.txt")
                    if p.name not in ("classes.txt", "predefined_classes.txt")
                    and p.stat().st_size > 0)
     excluded = _load_excluded(task, version)
     excluded_count = len(excluded)
-    used_for_training = src_imgs - excluded_count
 
-    st.markdown("**Live source counts** (root of version folder — updates as you label)")
-    src1, src2, src3, src4 = st.columns(4)
-    src1.metric("Total images", src_imgs)
-    src2.metric("Used for training", used_for_training,
-                help="Total images minus the exclude list.")
-    src3.metric("Excluded (ignored)", excluded_count,
-                help="Frames in _excluded.json — skipped by Clean dataset and "
-                     "ignored when split.py runs (after migration).")
-    src4.metric("Labels (non-empty)", src_lbls)
+    MIN_FRAMES = 40
+    ready = src_lbls >= MIN_FRAMES
+    progress_val = min(src_lbls / MIN_FRAMES, 1.0)
 
-    # ---- Last-split snapshot (populated by split.py — only refreshes when
-    # you click Retrain or run split.py manually). May lag behind source. ----
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Tổng ảnh", src_imgs)
+    c2.metric("Đã có nhãn", src_lbls)
+    c3.metric("Bỏ qua", excluded_count, help="Frames bị loại khỏi training")
+
+    if ready:
+        st.progress(1.0, text=f"✅ Đủ {src_lbls} frames có nhãn — sẵn sàng train!")
+    else:
+        st.progress(progress_val,
+                    text=f"⏳ {src_lbls}/{MIN_FRAMES} frames có nhãn — cần thêm {MIN_FRAMES - src_lbls} nữa")
+
     train_n_img, train_n_lbl = _count_split(data_root, "train")
     val_n_img, val_n_lbl = _count_split(data_root, "val")
     split_total_lbls = train_n_lbl + val_n_lbl
-
     img_train_dir = data_root / "images" / "train"
     last_split_at = (
-        datetime.fromtimestamp(img_train_dir.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
-        if img_train_dir.exists() else "(never)"
+        datetime.fromtimestamp(img_train_dir.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+        if img_train_dir.exists() else "chưa có"
     )
     drift = src_lbls - split_total_lbls
+    if drift > 0:
+        st.warning(f"⚠ Có **{drift}** nhãn mới chưa được đưa vào split — bấm **Retrain** để cập nhật.")
 
-    st.markdown(
-        f"**Last split snapshot** (used by training) · last split: `{last_split_at}`"
-        + (f"  ·  ⚠ source has **{drift}** more label(s) than split — "
-           "run **Retrain** (or split.py) to refresh"
-           if drift > 0 else "")
-    )
-    sc1, sc2, sc3, sc4 = st.columns(4)
-    sc1.metric("Train images", train_n_img)
-    sc2.metric("Train labels", train_n_lbl)
-    sc3.metric("Val images", val_n_img)
-    sc4.metric("Val labels", val_n_lbl)
+    with st.expander(f"Chi tiết split (lần cuối: {last_split_at})"):
+        sc1, sc2, sc3, sc4 = st.columns(4)
+        sc1.metric("Train ảnh", train_n_img)
+        sc2.metric("Train nhãn", train_n_lbl)
+        sc3.metric("Val ảnh", val_n_img)
+        sc4.metric("Val nhãn", val_n_lbl)
 
     # ---- Best.pt timestamp ----
     # Default run name embeds the dataset version so retraining different
