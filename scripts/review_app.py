@@ -3272,7 +3272,33 @@ def train_tab(task: str, version: str) -> None:
         st_autorefresh(interval=2000, key=f"train_auto_{task}_{version}")
 
 
+def _login_gate() -> bool:
+    """Return True if the user is authenticated. Show login form otherwise."""
+    if st.session_state.get("authenticated"):
+        return True
+
+    try:
+        app_password = st.secrets["APP_PASSWORD"]
+    except (KeyError, FileNotFoundError):
+        # No password configured — allow access (local dev or unprotected deploy).
+        return True
+
+    st.set_page_config(page_title="Login — Inspection app", layout="centered")
+    st.title("🔐 Inspection App")
+    st.markdown("Nhập mật khẩu để tiếp tục.")
+    pwd = st.text_input("Mật khẩu", type="password", key="_login_pwd")
+    if st.button("Đăng nhập", type="primary"):
+        if pwd == app_password:
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("Sai mật khẩu.")
+    return False
+
+
 def main() -> None:
+    if not _login_gate():
+        st.stop()
     st.set_page_config(page_title="Inspection app", layout="wide")
     st.markdown(
         """
