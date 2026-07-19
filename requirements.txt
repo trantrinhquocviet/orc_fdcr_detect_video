@@ -1,9 +1,9 @@
 ultralytics==8.3.40
-opencv-python-headless==4.10.0.84
-numpy==1.26.4
-Pillow==10.4.0
-PyYAML==6.0.2
-tqdm==4.66.5
+opencv-python-headless>=4.10.0
+numpy>=1.26.4
+Pillow>=10.4.0
+PyYAML>=6.0.2
+tqdm>=4.66.5
 streamlit>=1.40.0
 huggingface_hub>=0.23.0
 python-dotenv>=1.0.0
