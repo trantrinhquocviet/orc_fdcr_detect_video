@@ -1,3 +1,14 @@
+---
+title: ORC FDCR Detect Review
+emoji: 📦
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: "1.40.0"
+app_file: app.py
+pinned: false
+---
+
 # Reverse-Logistics Local AI (YOLOv8 + Python)
 
 Local desktop pipeline that analyzes return-package videos/images for two

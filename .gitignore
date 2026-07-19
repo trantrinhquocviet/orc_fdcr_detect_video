@@ -10,3 +10,4 @@ logs/
 .claude/
 *.egg-info/
 .DS_Store
+.env

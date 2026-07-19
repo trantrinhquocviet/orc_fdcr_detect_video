@@ -38,7 +38,7 @@ if not hasattr(_st_image_mod, "image_to_url"):
         return _new(image, LayoutConfig(width=width), clamp, channels, output_format, image_id)
     _st_image_mod.image_to_url = _shim_image_to_url  # type: ignore[attr-defined]
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("ORC_DATA_ROOT", str(Path(__file__).resolve().parents[1])))
 FEEDBACK_DIR = ROOT / "outputs" / "review"
 IMPORT_DIR = ROOT / "dataset" / "_import"  # neutral pool — frames live here until sent to a task
 
@@ -3317,6 +3317,31 @@ def main() -> None:
     # Simulated current user. Read by label_tab to scope assignments + queue.
     st.sidebar.selectbox("Current user", USERS, index=0, key="current_user")
     st.sidebar.markdown("---")
+
+    # Cloud sync (only shown when HF token is configured)
+    if os.environ.get("HUGGING_FACE_ACCESS_TOKEN"):
+        st.sidebar.markdown("**☁️ Cloud sync**")
+        col1, col2 = st.sidebar.columns(2)
+        if col1.button("Pull", help="Download latest from HF Hub"):
+            with st.spinner("Pulling from Hub…"):
+                try:
+                    import sys; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+                    from hf_sync import pull_from_hub
+                    pull_from_hub(ROOT)
+                    st.sidebar.success("Pulled ✓")
+                    st.rerun()
+                except Exception as e:
+                    st.sidebar.error(str(e))
+        if col2.button("Push", help="Upload local changes to HF Hub"):
+            with st.spinner("Pushing to Hub…"):
+                try:
+                    import sys; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+                    from hf_sync import push_to_hub
+                    push_to_hub(ROOT)
+                    st.sidebar.success("Pushed ✓")
+                except Exception as e:
+                    st.sidebar.error(str(e))
+        st.sidebar.markdown("---")
 
     tab_review, tab_import, tab_label, tab_train, tab_pipeline = st.tabs(
         ["Review labels", "Import frames", "Inspect & label", "Train", "Run pipeline"]
