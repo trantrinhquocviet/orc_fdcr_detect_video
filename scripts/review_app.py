@@ -456,56 +456,46 @@ def fit_to_height(img_bgr: np.ndarray, max_h: int) -> np.ndarray:
 
 
 def review_tab(task: str, version: str) -> None:
-    st.title("Bounding box review")
-    st.caption("Mark each labeled image as correct or incorrect. Saves to CSV with video_id.")
+    st.title("🔍 Review nhãn")
+    st.caption("Kiểm tra từng ảnh — đánh dấu Đúng / Sai để lọc trước khi train.")
 
     folder = _version_dir(task, version)
     # Feedback CSV is per task+version so a re-import doesn't merge votes.
     csv_path = FEEDBACK_DIR / f"review_{_task_slug(task)}_{version}.csv"
 
-    st.sidebar.write(f"Dataset: `{folder.relative_to(ROOT)}`")
-    st.sidebar.write(f"Feedback CSV: `{csv_path.relative_to(ROOT)}`")
-
-    only_labeled = st.sidebar.checkbox("Show only images with labels", value=True)
-
-    # Visible context block — prevents wrong-dataset confusion.
-    st.info(
-        f"**Current task:** {task}  ·  **Version:** `{version}`  ·  "
-        f"**Dataset:** `{folder.relative_to(ROOT)}`"
-    )
-
     if not folder.exists():
-        st.error(f"Dataset folder for version '{version}' not found: {folder}")
+        st.warning(
+            f"Dataset folder not found for version `{version}`: `{folder}`\n\n"
+            "Use the **Import frames** tab to extract a video into a new version, "
+            "or pick a different version in the sidebar."
+        )
         return
 
     class_names, class_source = load_class_names(folder)
-    st.sidebar.write(f"Class file: `{class_source}`")
-    if class_names:
-        st.sidebar.write("Classes: " + ", ".join(
-            f"{i}={n}" for i, n in sorted(class_names.items())))
-    else:
-        st.sidebar.warning("No class file found — boxes will show as `cls_<id>`")
+
+    # Filters — inline, not sidebar
+    col_filter1, col_filter2 = st.columns([1, 2])
+    only_labeled = col_filter1.checkbox("Chỉ ảnh có nhãn", value=True)
 
     all_images = sorted(folder.glob("*.jpg")) + sorted(folder.glob("*.png"))
     if only_labeled:
         all_images = [p for p in all_images if p.with_suffix(".txt").exists()
                       and p.with_suffix(".txt").stat().st_size > 0]
     if not all_images:
-        st.warning("No images to review. Try unchecking 'only labeled' or check folder path.")
+        st.warning("Không có ảnh nào. Bỏ tick 'Chỉ ảnh có nhãn' hoặc import frames trước.")
         return
 
-    # Group by video_id
     video_ids = sorted({parse_video_id(p.stem)[0] for p in all_images})
-    selected_video = st.sidebar.selectbox(
-        "Filter by video", options=["(all videos)"] + video_ids, index=0)
+    selected_video = col_filter2.selectbox(
+        "Lọc theo video", options=["(tất cả)"] + video_ids, index=0)
 
-    if selected_video == "(all videos)":
+    if selected_video == "(tất cả)":
         images = all_images
     else:
         images = [p for p in all_images if parse_video_id(p.stem)[0] == selected_video]
 
     if not images:
-        st.warning(f"No images for video {selected_video}")
+        st.warning(f"Không có ảnh nào cho video {selected_video}")
         return
 
     scope_key = f"{task}::{selected_video}"
