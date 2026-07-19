@@ -3299,12 +3299,7 @@ def main() -> None:
     if pending_v:
         st.session_state[f"current_version::{task}"] = pending_v
 
-    # Version selector — versioning isolates re-imports so old labels never
-    # collide with re-extracted frames. v_legacy = pre-versioning data.
-    show_archived = st.sidebar.checkbox(
-        "Show archived versions", value=False, key=f"show_archived::{task}",
-        help="Archived versions are hidden by default. Tick to surface them.",
-    )
+    show_archived = st.session_state.get(f"show_archived::{task}", False)
     versions = _list_versions(task, include_archived=show_archived)
     if not versions:
         versions = [LEGACY_VERSION]
@@ -3314,8 +3309,16 @@ def main() -> None:
         help="Newest version is on top. v_legacy = pre-versioned data at the base folder.",
     )
 
-    # Simulated current user. Read by label_tab to scope assignments + queue.
-    st.sidebar.selectbox("Current user", USERS, index=0, key="current_user")
+    # User identity — hidden in expander to reduce sidebar clutter.
+    with st.sidebar.expander("⚙️ Advanced"):
+        st.selectbox("Current user", USERS, index=0, key="current_user")
+        st.checkbox(
+            "Show archived versions", value=False, key=f"show_archived_adv::{task}",
+            help="Archived versions are hidden by default.",
+        )
+    # Sync show_archived state from expander into the key used by _list_versions
+    if st.session_state.get(f"show_archived_adv::{task}") != st.session_state.get(f"show_archived::{task}"):
+        st.session_state[f"show_archived::{task}"] = st.session_state.get(f"show_archived_adv::{task}", False)
     st.sidebar.markdown("---")
 
     # Cloud sync (only shown when HF token is configured)
@@ -3343,19 +3346,36 @@ def main() -> None:
                     st.sidebar.error(str(e))
         st.sidebar.markdown("---")
 
-    tab_review, tab_import, tab_label, tab_train, tab_pipeline = st.tabs(
-        ["Review labels", "Import frames", "Inspect & label", "Train", "Run pipeline"]
-    )
-    with tab_review:
-        review_tab(task, version)
+    _ultralytics_available = True
+    try:
+        import ultralytics  # noqa: F401
+        if ultralytics.YOLO is None:
+            _ultralytics_available = False
+    except ImportError:
+        _ultralytics_available = False
+
+    if _ultralytics_available:
+        tab_import, tab_label, tab_review, tab_train, tab_pipeline = st.tabs(
+            ["Import frames", "Label", "Review", "Train", "Run pipeline"]
+        )
+        with tab_train:
+            train_tab(task, version)
+        with tab_pipeline:
+            pipeline_tab()
+    else:
+        tab_import, tab_label, tab_review = st.tabs(
+            ["Import frames", "Label", "Review"]
+        )
+
     with tab_import:
+        _empty_state = not _list_versions(task)
+        if _empty_state:
+            st.info("👋 Bắt đầu ở đây: import video hoặc ảnh vào dataset.")
         import_tab(task, version)
     with tab_label:
         label_tab(task, version)
-    with tab_train:
-        train_tab(task, version)
-    with tab_pipeline:
-        pipeline_tab()
+    with tab_review:
+        review_tab(task, version)
 
 
 if __name__ == "__main__":
