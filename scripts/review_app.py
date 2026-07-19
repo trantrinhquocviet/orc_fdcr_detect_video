@@ -2039,10 +2039,9 @@ def _launch_labelimg(folder: Path, classes_file: Path,
 
 
 def label_tab(task: str, version: str) -> None:
-    st.title("Inspect & label")
+    st.title("🏷️ Label ảnh")
     st.caption(
-        "Browse, filter, and inspect frames + their YOLO labels. "
-        "Heavy editing happens in **LabelImg** — copy the command below."
+        "Xem và kiểm tra frames + nhãn YOLO. Vẽ box chi tiết dùng **LabelImg** — copy lệnh bên dưới."
     )
 
     cfg = TASK_CONFIG[task]
