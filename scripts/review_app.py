@@ -1271,59 +1271,26 @@ def import_tab(task: str, version: str) -> None:
 
     st.markdown("---")
 
-    # ============== Step 3: Send to task ==============
-    st.markdown("### 🚀 Step 3: Send selected frames to a task")
+    # ============== Step 3: Send to dataset ==============
+    st.markdown("### Bước 3 — Thêm vào dataset")
 
-    task_options = list(TASK_CONFIG.keys())
-    target_task = st.selectbox(
-        "Send to task", task_options,
-        index=task_options.index(task) if task in task_options else 0,
-        key="import_send_target",
-    )
-
-    # Resolve final list (drop any selected paths whose files vanished).
+    # Auto-use current task — no need for user to pick
+    target_task = task
     final_paths = sorted({Path(s) for s in selected if Path(s).exists()})
-    final_count = len(final_paths)
+    append_target_version = version
 
-    # Determine the "current version" for the Append target. If the sidebar
-    # task matches the target, respect the sidebar's selected version;
-    # otherwise fall back to the most-recent version of the target task.
-    if target_task == task:
-        append_target_version = version
-    else:
-        target_versions = _list_versions(target_task)
-        append_target_version = target_versions[0] if target_versions else LEGACY_VERSION
-
-    send_mode = st.radio(
-        "Send mode",
-        ["Append to current version", "Create new version"],
-        index=0, horizontal=True,
-        key=f"import_send_mode_{target_task}",
-        help=(
-            "Append: add to the current dataset (default — keeps your queue, "
-            "active image, and filters intact). "
-            "Create new: fresh version folder. Use only when starting a new "
-            "annotation pass, re-extracting at a different fps, or branching "
-            "experiments."
-        ),
+    _append_send_block(
+        target_task=target_task,
+        target_version=append_target_version,
+        final_paths=final_paths,
     )
 
-    if send_mode == "Append to current version":
-        _append_send_block(
-            target_task=target_task,
-            target_version=append_target_version,
-            final_paths=final_paths,
-        )
-    else:
+    with st.expander("⚙️ Tạo version mới (nâng cao)"):
+        st.caption("Dùng khi muốn tách riêng batch mới khỏi data cũ.")
         _create_new_version_block(
             target_task=target_task,
             final_paths=final_paths,
         )
-
-    st.caption(
-        "Pool selections are kept after sending — you can send the same frames "
-        "to a different task or version. Use **Clear all selection** to reset."
-    )
 
 
 def _append_send_block(target_task: str, target_version: str,
@@ -1333,13 +1300,8 @@ def _append_send_block(target_task: str, target_version: str,
     """
     target_dir = _version_dir(target_task, target_version)
     final_count = len(final_paths)
-    st.caption(
-        f"Will add to: `{target_dir.relative_to(ROOT)}` "
-        f"(version `{target_version}`, task `{target_task}`)"
-    )
-
     if not st.button(
-        f"✅ Add to current dataset ({final_count} frame(s))",
+        f"✅ Thêm {final_count} frames vào dataset" if final_count > 0 else "Chưa chọn frame nào",
         type="primary", use_container_width=True,
         disabled=final_count == 0,
         key=f"import_append_{target_task}_{target_version}",
@@ -1364,15 +1326,11 @@ def _append_send_block(target_task: str, target_version: str,
         sum(1 for _ in target_dir.glob("*.jpg"))
         + sum(1 for _ in target_dir.glob("*.png"))
     )
-    st.success(
-        f"✅ Added **{ok}** frame(s) to `{target_version}` "
-        f"({skipped} already present, skipped)."
-    )
-    st.info(
-        "🧠 Images added to current dataset — no reset occurred. "
-        "Your queue, active image, and filters are preserved."
-    )
-    st.caption(f"Dataset `{target_version}` now has **{new_total}** images.")
+    msg = f"✅ Đã thêm **{ok}** frames vào dataset."
+    if skipped:
+        msg += f" ({skipped} frame đã có, bỏ qua)"
+    st.success(msg)
+    st.caption(f"Dataset `{target_version}` hiện có **{new_total}** ảnh.")
 
 
 def _create_new_version_block(target_task: str, final_paths: list[Path]) -> None:
