@@ -2989,159 +2989,71 @@ def train_tab(task: str, version: str) -> None:
         sc3.metric("Val ảnh", val_n_img)
         sc4.metric("Val nhãn", val_n_lbl)
 
-    # ---- Best.pt timestamp ----
-    # Default run name embeds the dataset version so retraining different
-    # versions never overwrites each other's weights.
-    name_default = f"rl_{_task_slug(task)}_{version}"
-    name = st.text_input(
-        "Run name", value=name_default, key=f"train_name_{task}_{version}",
-        help="Output goes to models/<name>/. Bump suffix (-v2, -v3…) when "
-             "retraining the same dataset version to keep old weights.",
-    )
-
-    best_pt = ROOT / "models" / name / "weights" / "best.pt"
-    if best_pt.exists():
-        ts = datetime.fromtimestamp(best_pt.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
-        size_mb = best_pt.stat().st_size / (1024 * 1024)
-        st.success(f"📦 `{best_pt.relative_to(ROOT)}` — last modified {ts} · {size_mb:.1f} MB")
-    else:
-        st.caption(f"No `best.pt` for run `{name}` yet (will land at `models/{name}/weights/best.pt`).")
-
-    # ---- Hyperparameters ----
-    with st.expander("Training hyperparameters"):
+    # ---- Config (run name + hyperparams) ----
+    with st.expander("⚙️ Cấu hình training"):
+        name_default = f"rl_{_task_slug(task)}_{version}"
+        name = st.text_input(
+            "Run name", value=name_default, key=f"train_name_{task}_{version}",
+            help="Output: models/<name>/weights/best.pt. Bump suffix (-v2, -v3…) to keep old weights.",
+        )
+        best_pt = ROOT / "models" / name / "weights" / "best.pt"
+        if best_pt.exists():
+            ts = datetime.fromtimestamp(best_pt.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+            size_mb = best_pt.stat().st_size / (1024 * 1024)
+            st.success(f"📦 `{best_pt.relative_to(ROOT)}` · {ts} · {size_mb:.1f} MB")
+        else:
+            st.caption(f"`models/{name}/weights/best.pt` — chưa có.")
         hc1, hc2, hc3, hc4 = st.columns(4)
         epochs = hc1.number_input("Epochs", min_value=1, max_value=500, value=30, step=10,
                                   key=f"train_epochs_{task}_{version}")
-        batch = hc2.number_input("Batch size", min_value=1, max_value=64, value=4,
+        batch = hc2.number_input("Batch", min_value=1, max_value=64, value=4,
                                  key=f"train_batch_{task}_{version}")
-        imgsz = hc3.number_input("Image size", min_value=320, max_value=1280, value=640, step=64,
+        imgsz = hc3.number_input("Img size", min_value=320, max_value=1280, value=640, step=64,
                                  key=f"train_imgsz_{task}_{version}")
         device = hc4.selectbox("Device", ["cpu", "0"], index=0,
                                key=f"train_device_{task}_{version}",
-                               help="cpu = CPU; 0 = GPU 0 (only if CUDA is available).")
+                               help="cpu = CPU; 0 = GPU 0")
+    # name/epochs/batch/imgsz/device default if expander not opened
+    name = st.session_state.get(f"train_name_{task}_{version}", f"rl_{_task_slug(task)}_{version}")
+    epochs = st.session_state.get(f"train_epochs_{task}_{version}", 30)
+    batch = st.session_state.get(f"train_batch_{task}_{version}", 4)
+    imgsz = st.session_state.get(f"train_imgsz_{task}_{version}", 640)
+    device = st.session_state.get(f"train_device_{task}_{version}", "cpu")
+    best_pt = ROOT / "models" / name / "weights" / "best.pt"
 
-    # ---- Dataset management actions (Clean + Archive) ----
-    with st.expander("🛠 Dataset management"):
-        dm1, dm2 = st.columns(2)
-        with dm1:
-            st.markdown("**🧹 Clean dataset**")
-            require_correct = st.checkbox(
-                "Also require `is_correct=yes` in review CSV",
-                value=False, key=f"clean_require_correct_{task}_{version}",
-                help="Drops frames where the Review tab marked the label "
-                     "as incorrect. CSV: outputs/review/review_<task>_<version>.csv",
-            )
-            confirm_clean = st.checkbox(
-                "I understand this creates a NEW version",
-                value=False, key=f"clean_confirm_{task}_{version}",
-            )
-            if st.button(
-                "🧹 Clean dataset → create new version",
-                use_container_width=True,
-                disabled=not confirm_clean or src_lbls == 0,
-                key=f"clean_run_{task}_{version}",
-                help="Creates v<date>_clean with only labeled, non-excluded "
-                     "frames from this version. Original is preserved.",
-            ):
-                with st.spinner("Cleaning…"):
-                    new_v, stats = _clean_version(
-                        task, version, require_review_correct=require_correct,
-                    )
-                # Switch sidebar to the new clean version on next render.
-                st.session_state[f"_pending_version_switch::{task}"] = new_v
-                st.cache_data.clear()
-                st.success(
-                    f"✅ Created `{new_v}` with **{stats['copied']}** clean frame(s). "
-                    f"Skipped: unlabeled={stats['skipped_unlabeled']}, "
-                    f"excluded={stats['skipped_excluded']}, "
-                    f"review-rejected={stats['skipped_review_no']}."
-                )
-                time.sleep(0.5)
-                st.rerun()
-
-        with dm2:
-            st.markdown("**📦 Archive version**")
-            if version == LEGACY_VERSION:
-                st.caption("`v_legacy` is the base folder — cannot be archived.")
-            else:
-                is_arch = _is_archived(task, version)
-                if is_arch:
-                    st.caption(f"`{version}` is currently **archived**.")
-                    if st.button(
-                        "♻️ Un-archive (make visible again)",
-                        use_container_width=True,
-                        key=f"unarchive_{task}_{version}",
-                    ):
-                        _set_archived(task, version, False)
-                        st.toast(f"`{version}` un-archived.")
-                        st.rerun()
-                else:
-                    confirm_arch = st.checkbox(
-                        "Confirm archive (hides version, files preserved)",
-                        value=False, key=f"arch_confirm_{task}_{version}",
-                    )
-                    if st.button(
-                        f"📦 Archive `{version}`",
-                        use_container_width=True,
-                        disabled=not confirm_arch,
-                        key=f"archive_{task}_{version}",
-                        help="Marks the version as archived in _meta.json. "
-                             "Hidden from the sidebar selector unless you tick "
-                             "'Show archived versions' in the sidebar. No files "
-                             "are moved or deleted.",
-                    ):
-                        _set_archived(task, version, True)
-                        st.toast(f"`{version}` archived.")
-                        st.rerun()
-
-    # ---- Confirm + Run ----
+    # ---- Guards ----
     is_running = status == "running"
-    # Spec §5 — training guard: warn before training if dataset is thin.
     LABEL_THRESHOLD = 10
     EXCLUDED_RATIO_WARN = 0.5
     excluded_ratio = (excluded_count / src_imgs) if src_imgs else 0.0
     guard_msgs: list[str] = []
     if src_lbls < LABEL_THRESHOLD:
-        guard_msgs.append(
-            f"⚠ Only **{src_lbls}** labeled frame(s) — recommended ≥{LABEL_THRESHOLD} "
-            "for any meaningful training run."
-        )
+        guard_msgs.append(f"Chỉ có **{src_lbls}** frame có nhãn — nên có ≥{LABEL_THRESHOLD}.")
     if excluded_ratio > EXCLUDED_RATIO_WARN:
         guard_msgs.append(
-            f"⚠ **{excluded_count}/{src_imgs}** frames excluded "
-            f"({excluded_ratio:.0%}) — over half are ignored."
-        )
+            f"**{excluded_count}/{src_imgs}** frames bị loại ({excluded_ratio:.0%}) — quá nhiều.")
     if guard_msgs:
-        st.warning(
-            "**This dataset may not be ready for training:**\n\n"
-            + "\n".join(f"- {m}" for m in guard_msgs)
-        )
+        st.warning("⚠ Dataset chưa đủ:\n\n" + "\n".join(f"- {m}" for m in guard_msgs))
 
     can_train = train_n_img > 0 and val_n_img > 0 and train_n_lbl > 0
-
     if not can_train:
         st.warning(
-            f"Version `{version}` is not ready to train: needs ≥1 train image, "
-            "≥1 val image, and ≥1 train label. Either label more frames in this "
-            "version, or hit **Retrain** anyway — the wrapper runs `split.py` "
-            "first and will surface a useful error if the source folder is empty."
+            f"`{version}` chưa sẵn sàng train — cần ít nhất 1 ảnh train, 1 ảnh val, 1 nhãn train. "
+            "Bấm **Retrain** để split trước."
         )
 
     confirm = st.checkbox(
-        f"I've labeled enough — proceed to train **{task}** / `{version}` "
-        f"for **{epochs}** epoch(s) on **{device}**.",
+        f"Xác nhận train **{task}** / `{version}` — {epochs} epoch, device `{device}`",
         key=f"train_confirm_{task}_{version}", value=False,
     )
     rc1, rc2, rc3 = st.columns([3, 2, 1])
     with rc1:
         if st.button(
-            f"🚀 Retrain {task} · {version}",
+            f"🚀 Retrain",
             type="primary", use_container_width=True,
             disabled=is_running or not confirm,
             key=f"train_go_{task}_{version}",
         ):
-            # Re-write the per-version data.yaml right before spawning so any
-            # class additions / fps note changes are picked up.
             data_yaml = _ensure_version_data_yaml(task, version)
             ok, msg = _spawn_training(
                 task=task, version=version, data_yaml=data_yaml, name=name,
@@ -3149,17 +3061,14 @@ def train_tab(task: str, version: str) -> None:
                 imgsz=int(imgsz), device=device,
             )
             (st.success if ok else st.error)(msg)
-            time.sleep(0.5)  # give the wrapper a moment to write initial state
+            time.sleep(0.5)
             st.rerun()
     with rc2:
-        # Re-split without training — useful when you've labeled more frames
-        # and just want the metrics to reflect the new state.
-        if st.button("🔁 Re-split now (no train)",
+        if st.button("🔁 Re-split",
                      use_container_width=True,
                      disabled=is_running,
                      key=f"train_resplit_{task}_{version}",
-                     help="Runs split.py only. Updates the train/val snapshot "
-                          "metrics so labels you just saved appear immediately."):
+                     help="Chạy split.py, cập nhật train/val metrics mà không train lại."):
             data_yaml = _ensure_version_data_yaml(task, version)
             venv_py = ROOT / ".venv" / "Scripts" / "python.exe"
             try:
@@ -3169,26 +3078,88 @@ def train_tab(task: str, version: str) -> None:
                     cwd=str(ROOT), capture_output=True, text=True, timeout=60,
                 )
                 if r.returncode == 0:
-                    st.success("✅ Split refreshed — metrics below now reflect current labels.")
+                    st.success("✅ Split xong — metrics đã cập nhật.")
                 else:
-                    st.error(f"split.py failed (exit {r.returncode}):\n{r.stderr or r.stdout}")
+                    st.error(f"split.py lỗi (exit {r.returncode}):\n{r.stderr or r.stdout}")
             except Exception as e:  # noqa: BLE001
-                st.error(f"Re-split failed: {type(e).__name__}: {e}")
+                st.error(f"Re-split thất bại: {type(e).__name__}: {e}")
             st.cache_data.clear()
             st.rerun()
     with rc3:
-        if st.button("🔄 Refresh", use_container_width=True,
+        if st.button("🔄", use_container_width=True,
                      key=f"train_refresh_{task}_{version}",
-                     help="Re-read the log + state file (useful if auto-refresh is off)."):
+                     help="Refresh log + trạng thái."):
             st.rerun()
 
     # ---- Tail of logs ----
     log_path = _train_log_path(task, version)
     st.markdown(
-        f"**Last 20 log lines** · "
-        f"`{log_path.relative_to(ROOT) if log_path.exists() else '(no log yet)'}`"
+        f"**Log** · "
+        f"`{log_path.relative_to(ROOT) if log_path.exists() else '(chưa có log)'}`"
     )
     st.code(_tail_lines(log_path, 20), language="text")
+
+    # ---- Dataset management (clean + archive) — ít dùng, để cuối ----
+    with st.expander("🗂 Quản lý dataset"):
+        dm1, dm2 = st.columns(2)
+        with dm1:
+            st.markdown("**🧹 Clean dataset**")
+            require_correct = st.checkbox(
+                "Chỉ lấy frame được Review đánh dấu `is_correct=yes`",
+                value=False, key=f"clean_require_correct_{task}_{version}",
+            )
+            confirm_clean = st.checkbox(
+                "Tôi hiểu: thao tác này tạo version MỚI",
+                value=False, key=f"clean_confirm_{task}_{version}",
+            )
+            if st.button(
+                "🧹 Clean → tạo version mới",
+                use_container_width=True,
+                disabled=not confirm_clean or src_lbls == 0,
+                key=f"clean_run_{task}_{version}",
+            ):
+                with st.spinner("Cleaning…"):
+                    new_v, stats = _clean_version(
+                        task, version, require_review_correct=require_correct,
+                    )
+                st.session_state[f"_pending_version_switch::{task}"] = new_v
+                st.cache_data.clear()
+                st.success(
+                    f"✅ Tạo `{new_v}` với **{stats['copied']}** frame. "
+                    f"Bỏ qua: chưa nhãn={stats['skipped_unlabeled']}, "
+                    f"excluded={stats['skipped_excluded']}, "
+                    f"review-rejected={stats['skipped_review_no']}."
+                )
+                time.sleep(0.5)
+                st.rerun()
+
+        with dm2:
+            st.markdown("**📦 Archive version**")
+            if version == LEGACY_VERSION:
+                st.caption("`v_legacy` không thể archive.")
+            else:
+                is_arch = _is_archived(task, version)
+                if is_arch:
+                    st.caption(f"`{version}` đang **archived**.")
+                    if st.button("♻️ Un-archive", use_container_width=True,
+                                 key=f"unarchive_{task}_{version}"):
+                        _set_archived(task, version, False)
+                        st.toast(f"`{version}` đã un-archive.")
+                        st.rerun()
+                else:
+                    confirm_arch = st.checkbox(
+                        "Xác nhận archive (ẩn version, giữ nguyên file)",
+                        value=False, key=f"arch_confirm_{task}_{version}",
+                    )
+                    if st.button(
+                        f"📦 Archive `{version}`",
+                        use_container_width=True,
+                        disabled=not confirm_arch,
+                        key=f"archive_{task}_{version}",
+                    ):
+                        _set_archived(task, version, True)
+                        st.toast(f"`{version}` đã archive.")
+                        st.rerun()
 
     # ---- Auto-refresh while running ----
     if is_running:
