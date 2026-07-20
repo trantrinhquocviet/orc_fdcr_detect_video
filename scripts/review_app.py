@@ -456,7 +456,7 @@ def fit_to_height(img_bgr: np.ndarray, max_h: int) -> np.ndarray:
 
 
 def review_tab(task: str, version: str) -> None:
-    st.title("🔍 Review nhãn")
+    st.title("🔍 Review")
     st.caption("Kiểm tra từng ảnh — đánh dấu Đúng / Sai để lọc trước khi train.")
 
     folder = _version_dir(task, version)
@@ -806,8 +806,8 @@ def _render_result(result: dict, video_path: Path | None) -> None:
 
 
 def pipeline_tab() -> None:
-    st.title("Run pipeline on video")
-    st.caption("QC + shipping_label/OCR + damage detection. Non-blocking — always returns a result.")
+    st.title("▶ Pipeline")
+    st.caption("QC + OCR + damage detection.")
 
     # Lazy import so we can read the resolver without paying torch's cold-start
     # unless the user actually clicks Run. Used to populate the model dropdown.
@@ -1019,8 +1019,8 @@ def _link_or_copy(src: Path, dst: Path) -> str:
 
 
 def import_tab(task: str, version: str) -> None:
-    st.title("📥 Tải video lên")
-    st.caption("Tải video → trích xuất frames → chọn frames muốn label → gửi vào dataset.")
+    st.title("⬆ Import")
+    st.caption("Tải video → trích xuất frames → chọn frames → gửi vào dataset.")
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from extract_frames import derive_video_id, validate_video_id, extract
@@ -2039,10 +2039,8 @@ def _launch_labelimg(folder: Path, classes_file: Path,
 
 
 def label_tab(task: str, version: str) -> None:
-    st.title("🏷️ Label ảnh")
-    st.caption(
-        "Xem và kiểm tra frames + nhãn YOLO. Vẽ box chi tiết dùng **LabelImg** — copy lệnh bên dưới."
-    )
+    st.title("🏷 Label")
+    st.caption("Xem frames + nhãn YOLO. Vẽ bounding box chi tiết bằng LabelImg.")
 
     cfg = TASK_CONFIG[task]
     folder = _version_dir(task, version)
@@ -2912,7 +2910,7 @@ def _ensure_version_data_yaml(task: str, version: str) -> Path:
 
 
 def train_tab(task: str, version: str) -> None:
-    st.title(f"🚀 Train · {task} · `{version}`")
+    st.title(f"🚀 Train — {task} / {version}")
 
     cfg = TASK_CONFIG[task]
     # Per-version data.yaml is the source of truth for both split + train.
@@ -3191,29 +3189,213 @@ def _login_gate() -> bool:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Inspection app", layout="wide")
+    st.set_page_config(page_title="Inspection App", page_icon="📦", layout="wide")
     if not _login_gate():
         st.stop()
     st.markdown(
         """
         <style>
-        /* Cap the streamlit-rendered image so action buttons stay on-screen. */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        /* === BASE === */
+        html, body, [class*="css"] { font-family: 'Inter', -apple-system, sans-serif !important; }
+        .stApp { background-color: #F1F5F9; }
+        .block-container { padding-top: 1.5rem !important; padding-bottom: 2rem !important; }
+
+        /* === SIDEBAR === */
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            border-right: 1px solid #334155;
+        }
+        [data-testid="stSidebar"] .stSelectbox label,
+        [data-testid="stSidebar"] .stCheckbox span,
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] small {
+            color: #94A3B8 !important;
+            font-size: 0.72rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+        [data-testid="stSidebar"] [data-baseweb="select"] > div {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+            border-radius: 8px !important;
+            color: #F1F5F9 !important;
+        }
+        [data-testid="stSidebar"] [data-baseweb="select"] span { color: #F1F5F9 !important; }
+        [data-testid="stSidebar"] svg { fill: #64748B !important; }
+        [data-testid="stSidebar"] hr { border-color: #334155 !important; margin: 0.75rem 0 !important; }
+        [data-testid="stSidebar"] button {
+            background: #1E293B !important; color: #CBD5E1 !important;
+            border: 1px solid #334155 !important; border-radius: 7px !important;
+            font-size: 0.8rem !important; font-weight: 600 !important;
+        }
+        [data-testid="stSidebar"] button:hover {
+            background: #334155 !important; color: #F1F5F9 !important;
+        }
+
+        /* === TABS === */
+        [data-testid="stTabs"] [data-baseweb="tab-list"] {
+            background: transparent;
+            gap: 2px;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 0;
+        }
+        [data-testid="stTabs"] [data-baseweb="tab"] {
+            background: transparent;
+            border-radius: 8px 8px 0 0;
+            border: none;
+            padding: 0.65rem 1.1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748B;
+            letter-spacing: 0.02em;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.15s ease;
+        }
+        [data-testid="stTabs"] [data-baseweb="tab"]:hover {
+            color: #1D4ED8; background: #EFF6FF;
+        }
+        [data-testid="stTabs"] [aria-selected="true"] {
+            color: #1D4ED8 !important;
+            border-bottom: 2px solid #1D4ED8 !important;
+            background: #EFF6FF !important;
+        }
+        [data-testid="stTabs"] [data-testid="stMarkdownContainer"] { padding-top: 1.25rem; }
+
+        /* === HEADINGS === */
+        h1 {
+            font-size: 1.375rem !important; font-weight: 800 !important;
+            color: #0F172A !important; letter-spacing: -0.02em;
+            margin-bottom: 0.1rem !important;
+        }
+        h2 { font-size: 1.05rem !important; font-weight: 700 !important; color: #1E293B !important; }
+        h3 { font-size: 0.9rem !important; font-weight: 700 !important; color: #374151 !important;
+             text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* === METRIC CARDS === */
+        [data-testid="stMetric"] {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem 1.25rem !important;
+            box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+        }
+        [data-testid="stMetricLabel"] p {
+            color: #64748B !important; font-size: 0.7rem !important;
+            font-weight: 700 !important; text-transform: uppercase;
+            letter-spacing: 0.07em !important;
+        }
+        [data-testid="stMetricValue"] { color: #0F172A !important; font-weight: 700 !important; }
+
+        /* === BUTTONS === */
+        button[kind="primary"] {
+            background: linear-gradient(135deg, #1D4ED8, #3B82F6) !important;
+            border: none !important; border-radius: 9px !important;
+            font-weight: 700 !important; letter-spacing: 0.02em !important;
+            box-shadow: 0 2px 10px rgba(59,130,246,0.35) !important;
+            transition: all 0.18s ease !important;
+        }
+        button[kind="primary"]:hover:not(:disabled) {
+            box-shadow: 0 4px 18px rgba(59,130,246,0.5) !important;
+            transform: translateY(-1px) !important;
+        }
+        button[kind="secondary"] {
+            border-radius: 9px !important; border: 1.5px solid #CBD5E1 !important;
+            font-weight: 600 !important; color: #374151 !important;
+            background: white !important; transition: all 0.15s ease !important;
+        }
+        button[kind="secondary"]:hover:not(:disabled) {
+            border-color: #93C5FD !important; color: #1D4ED8 !important;
+            background: #EFF6FF !important;
+        }
+        button:disabled { opacity: 0.45 !important; }
+
+        /* === INPUTS === */
+        [data-testid="stTextInput"] input,
+        [data-testid="stNumberInput"] input,
+        textarea {
+            border-radius: 8px !important; border-color: #CBD5E1 !important;
+            background: white !important;
+        }
+        [data-testid="stTextInput"] input:focus,
+        [data-testid="stNumberInput"] input:focus,
+        textarea:focus {
+            border-color: #3B82F6 !important;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+        }
+        [data-baseweb="select"] > div { border-radius: 8px !important; }
+
+        /* === EXPANDER === */
+        [data-testid="stExpander"] details {
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 12px !important;
+            background: white !important;
+            box-shadow: 0 1px 4px rgba(15,23,42,0.05);
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        [data-testid="stExpander"] summary {
+            font-weight: 600 !important; color: #374151 !important;
+            padding: 0.875rem 1.1rem !important; font-size: 0.85rem !important;
+        }
+        [data-testid="stExpander"] summary:hover { background: #F8FAFC; }
+
+        /* === ALERTS === */
+        [data-testid="stAlert"] {
+            border-radius: 10px !important; border-left-width: 4px !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* === CONTAINERS === */
+        [data-testid="stVerticalBlockBorderWrapper"] > div {
+            border-radius: 14px !important; border-color: #E2E8F0 !important;
+            background: white !important;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.07) !important;
+        }
+
+        /* === PROGRESS BAR === */
+        [data-testid="stProgressBar"] > div { border-radius: 999px; background: #DBEAFE; }
+        [data-testid="stProgressBar"] > div > div {
+            background: linear-gradient(90deg, #1D4ED8, #60A5FA) !important;
+            border-radius: 999px;
+        }
+
+        /* === IMAGES === */
         div[data-testid='stImage'] img {
             max-height: 60vh; width: auto !important; margin: 0 auto; display: block;
+            border-radius: 10px; box-shadow: 0 4px 20px rgba(15,23,42,0.12);
             transition: transform 0.12s ease;
         }
-        /* Slight zoom on hover — applies to the Label tab grid thumbnails. */
         div[data-testid='stImage'] img:hover { transform: scale(1.03); }
+
+        /* === CODE BLOCK === */
+        [data-testid="stCode"] { border-radius: 10px !important; font-size: 0.78rem !important; }
+
+        /* === DIVIDER === */
+        hr { border-color: #E2E8F0 !important; margin: 1rem 0 !important; }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
+    # --- Sidebar ---
+    st.sidebar.markdown(
+        """
+        <div style="padding:1.25rem 0.5rem 0.75rem;
+                    font-size:0.6rem;font-weight:800;letter-spacing:0.18em;color:#475569;">
+            📦 &nbsp;INSPECTION APP
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.sidebar.markdown("---")
 
     # One shared task selector — both tabs read this. Streamlit tabs do not
     # scope sidebar widgets, so a per-tab selectbox would duplicate.
-    task = st.sidebar.selectbox("Training task", list(TASK_CONFIG.keys()), index=0)
+    task = st.sidebar.selectbox("Task", list(TASK_CONFIG.keys()), index=0)
 
     # Apply pending version switch BEFORE the version selectbox is created.
     # Set by import_tab's Send button when a new version is born — see there.
@@ -3226,29 +3408,30 @@ def main() -> None:
     if not versions:
         versions = [LEGACY_VERSION]
     version = st.sidebar.selectbox(
-        "Dataset version", versions, index=0,
+        "Version", versions, index=0,
         key=f"current_version::{task}",
-        help="Newest version is on top. v_legacy = pre-versioned data at the base folder.",
+        help="Newest version is on top. v_legacy = pre-versioned data.",
     )
+    st.sidebar.markdown("---")
 
-    # User identity — hidden in expander to reduce sidebar clutter.
-    with st.sidebar.expander("⚙️ Advanced"):
-        st.selectbox("Current user", USERS, index=0, key="current_user")
+    # User identity + archived toggle
+    with st.sidebar.expander("⚙️ Cài đặt"):
+        st.selectbox("Người dùng", USERS, index=0, key="current_user")
         st.checkbox(
-            "Show archived versions", value=False, key=f"show_archived_adv::{task}",
-            help="Archived versions are hidden by default.",
+            "Hiện archived versions", value=False, key=f"show_archived_adv::{task}",
         )
-    # Sync show_archived state from expander into the key used by _list_versions
     if st.session_state.get(f"show_archived_adv::{task}") != st.session_state.get(f"show_archived::{task}"):
         st.session_state[f"show_archived::{task}"] = st.session_state.get(f"show_archived_adv::{task}", False)
-    st.sidebar.markdown("---")
 
     # Cloud sync (only shown when HF token is configured)
     if os.environ.get("HUGGING_FACE_ACCESS_TOKEN"):
-        st.sidebar.markdown("**☁️ Cloud sync**")
+        st.sidebar.markdown("---")
+        st.sidebar.markdown(
+            "<small>☁️ &nbsp;CLOUD SYNC</small>", unsafe_allow_html=True
+        )
         col1, col2 = st.sidebar.columns(2)
-        if col1.button("Pull", help="Download latest from HF Hub"):
-            with st.spinner("Pulling from Hub…"):
+        if col1.button("↓ Pull", help="Download latest from HF Hub"):
+            with st.spinner("Pulling…"):
                 try:
                     import sys; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
                     from hf_sync import pull_from_hub
@@ -3257,8 +3440,8 @@ def main() -> None:
                     st.rerun()
                 except Exception as e:
                     st.sidebar.error(str(e))
-        if col2.button("Push", help="Upload local changes to HF Hub"):
-            with st.spinner("Pushing to Hub…"):
+        if col2.button("↑ Push", help="Upload local changes to HF Hub"):
+            with st.spinner("Pushing…"):
                 try:
                     import sys; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
                     from hf_sync import push_to_hub
@@ -3266,7 +3449,6 @@ def main() -> None:
                     st.sidebar.success("Pushed ✓")
                 except Exception as e:
                     st.sidebar.error(str(e))
-        st.sidebar.markdown("---")
 
     _ultralytics_available = True
     try:
@@ -3278,7 +3460,7 @@ def main() -> None:
 
     if _ultralytics_available:
         tab_import, tab_label, tab_review, tab_train, tab_pipeline = st.tabs(
-            ["Import frames", "Label", "Review", "Train", "Run pipeline"]
+            ["⬆ Import", "🏷 Label", "🔍 Review", "🚀 Train", "▶ Pipeline"]
         )
         with tab_train:
             train_tab(task, version)
@@ -3286,7 +3468,7 @@ def main() -> None:
             pipeline_tab()
     else:
         tab_import, tab_label, tab_review = st.tabs(
-            ["Import frames", "Label", "Review"]
+            ["⬆ Import", "🏷 Label", "🔍 Review"]
         )
 
     with tab_import:
