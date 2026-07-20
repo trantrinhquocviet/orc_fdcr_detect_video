@@ -3199,174 +3199,190 @@ def main() -> None:
 
         /* === BASE === */
         html, body, [class*="css"] { font-family: 'Inter', -apple-system, sans-serif !important; }
-        .stApp { background-color: #F1F5F9; }
-        .block-container { padding-top: 1.5rem !important; padding-bottom: 2rem !important; }
+        .stApp { background-color: #FAF7F4; }
+        .block-container { padding-top: 1.75rem !important; padding-bottom: 2.5rem !important;
+                           max-width: 1100px; }
 
         /* === SIDEBAR === */
         [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
-            border-right: 1px solid #334155;
+            background: #FFFFFF;
+            border-right: 1px solid #EDE8E3;
         }
         [data-testid="stSidebar"] .stSelectbox label,
         [data-testid="stSidebar"] .stCheckbox span,
         [data-testid="stSidebar"] .stMarkdown p,
         [data-testid="stSidebar"] small {
-            color: #94A3B8 !important;
-            font-size: 0.72rem !important;
-            font-weight: 600 !important;
+            color: #9C8F85 !important;
+            font-size: 0.7rem !important;
+            font-weight: 700 !important;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: 0.08em;
         }
         [data-testid="stSidebar"] [data-baseweb="select"] > div {
-            background-color: #1E293B !important;
-            border-color: #334155 !important;
-            border-radius: 8px !important;
-            color: #F1F5F9 !important;
+            background-color: #FAF7F4 !important;
+            border-color: #EDE8E3 !important;
+            border-radius: 10px !important;
+            color: #1A1411 !important;
         }
-        [data-testid="stSidebar"] [data-baseweb="select"] span { color: #F1F5F9 !important; }
-        [data-testid="stSidebar"] svg { fill: #64748B !important; }
-        [data-testid="stSidebar"] hr { border-color: #334155 !important; margin: 0.75rem 0 !important; }
+        [data-testid="stSidebar"] [data-baseweb="select"] span { color: #1A1411 !important; }
+        [data-testid="stSidebar"] hr { border-color: #EDE8E3 !important; margin: 0.75rem 0 !important; }
         [data-testid="stSidebar"] button {
-            background: #1E293B !important; color: #CBD5E1 !important;
-            border: 1px solid #334155 !important; border-radius: 7px !important;
+            background: #FAF7F4 !important; color: #5C4F46 !important;
+            border: 1px solid #EDE8E3 !important; border-radius: 8px !important;
             font-size: 0.8rem !important; font-weight: 600 !important;
         }
         [data-testid="stSidebar"] button:hover {
-            background: #334155 !important; color: #F1F5F9 !important;
+            background: #FFF0EA !important; color: #C84B0F !important;
+            border-color: #F4B8A0 !important;
         }
 
-        /* === TABS === */
+        /* === TABS — pill style === */
         [data-testid="stTabs"] [data-baseweb="tab-list"] {
-            background: transparent;
+            background: #EDEAE6;
+            border-radius: 12px;
+            padding: 4px;
             gap: 2px;
-            border-bottom: 2px solid #E2E8F0;
-            padding-bottom: 0;
+            border-bottom: none !important;
+            display: inline-flex;
         }
         [data-testid="stTabs"] [data-baseweb="tab"] {
             background: transparent;
-            border-radius: 8px 8px 0 0;
+            border-radius: 9px;
             border: none;
-            padding: 0.65rem 1.1rem;
-            font-size: 0.8rem;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.82rem;
             font-weight: 600;
-            color: #64748B;
-            letter-spacing: 0.02em;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
+            color: #7A6E67;
             transition: all 0.15s ease;
         }
-        [data-testid="stTabs"] [data-baseweb="tab"]:hover {
-            color: #1D4ED8; background: #EFF6FF;
-        }
+        [data-testid="stTabs"] [data-baseweb="tab"]:hover { color: #C84B0F; }
         [data-testid="stTabs"] [aria-selected="true"] {
-            color: #1D4ED8 !important;
-            border-bottom: 2px solid #1D4ED8 !important;
-            background: #EFF6FF !important;
+            background: #FFFFFF !important;
+            color: #C84B0F !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.10);
         }
-        [data-testid="stTabs"] [data-testid="stMarkdownContainer"] { padding-top: 1.25rem; }
+        [data-testid="stTabs"] [data-testid="stMarkdownContainer"] { padding-top: 1.5rem; }
 
         /* === HEADINGS === */
         h1 {
-            font-size: 1.375rem !important; font-weight: 800 !important;
-            color: #0F172A !important; letter-spacing: -0.02em;
-            margin-bottom: 0.1rem !important;
+            font-size: 1.5rem !important; font-weight: 800 !important;
+            color: #1A1411 !important; letter-spacing: -0.025em;
+            margin-bottom: 0.15rem !important;
         }
-        h2 { font-size: 1.05rem !important; font-weight: 700 !important; color: #1E293B !important; }
-        h3 { font-size: 0.9rem !important; font-weight: 700 !important; color: #374151 !important;
-             text-transform: uppercase; letter-spacing: 0.05em; }
+        h1 + div p, h1 + p { color: #9C8F85 !important; font-size: 0.875rem !important; }
+        h2 { font-size: 1.05rem !important; font-weight: 700 !important; color: #2D2420 !important; }
+        h3 { font-size: 0.78rem !important; font-weight: 700 !important; color: #9C8F85 !important;
+             text-transform: uppercase; letter-spacing: 0.08em; }
 
         /* === METRIC CARDS === */
         [data-testid="stMetric"] {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 1rem 1.25rem !important;
-            box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+            background: #FFFFFF;
+            border: 1px solid #EDE8E3;
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem !important;
+            box-shadow: 0 1px 3px rgba(26,20,17,0.05);
         }
         [data-testid="stMetricLabel"] p {
-            color: #64748B !important; font-size: 0.7rem !important;
+            color: #9C8F85 !important; font-size: 0.68rem !important;
             font-weight: 700 !important; text-transform: uppercase;
-            letter-spacing: 0.07em !important;
+            letter-spacing: 0.08em !important;
         }
-        [data-testid="stMetricValue"] { color: #0F172A !important; font-weight: 700 !important; }
+        [data-testid="stMetricValue"] { color: #1A1411 !important; font-weight: 800 !important; }
 
         /* === BUTTONS === */
         button[kind="primary"] {
-            background: linear-gradient(135deg, #1D4ED8, #3B82F6) !important;
-            border: none !important; border-radius: 9px !important;
-            font-weight: 700 !important; letter-spacing: 0.02em !important;
-            box-shadow: 0 2px 10px rgba(59,130,246,0.35) !important;
+            background: #E8500A !important;
+            border: none !important; border-radius: 10px !important;
+            font-weight: 700 !important; letter-spacing: 0.01em !important;
+            box-shadow: 0 2px 10px rgba(232,80,10,0.30) !important;
             transition: all 0.18s ease !important;
+            color: #FFFFFF !important;
         }
         button[kind="primary"]:hover:not(:disabled) {
-            box-shadow: 0 4px 18px rgba(59,130,246,0.5) !important;
+            background: #C84B0F !important;
+            box-shadow: 0 4px 18px rgba(232,80,10,0.40) !important;
             transform: translateY(-1px) !important;
         }
         button[kind="secondary"] {
-            border-radius: 9px !important; border: 1.5px solid #CBD5E1 !important;
-            font-weight: 600 !important; color: #374151 !important;
-            background: white !important; transition: all 0.15s ease !important;
+            border-radius: 10px !important; border: 1.5px solid #EDE8E3 !important;
+            font-weight: 600 !important; color: #5C4F46 !important;
+            background: #FFFFFF !important; transition: all 0.15s ease !important;
         }
         button[kind="secondary"]:hover:not(:disabled) {
-            border-color: #93C5FD !important; color: #1D4ED8 !important;
-            background: #EFF6FF !important;
+            border-color: #F4B8A0 !important; color: #C84B0F !important;
+            background: #FFF5F0 !important;
         }
-        button:disabled { opacity: 0.45 !important; }
+        button:disabled { opacity: 0.4 !important; }
+
+        /* === FILE UPLOADER — dashed dropzone === */
+        [data-testid="stFileUploader"] {
+            background: #FFFFFF;
+            border: 2px dashed #D4C9C2 !important;
+            border-radius: 16px !important;
+            padding: 1.5rem !important;
+            transition: border-color 0.2s;
+        }
+        [data-testid="stFileUploader"]:hover { border-color: #E8500A !important; }
+        [data-testid="stFileUploader"] label { font-weight: 600 !important; color: #2D2420 !important; }
+        [data-testid="stFileUploader"] small { color: #9C8F85 !important; }
 
         /* === INPUTS === */
         [data-testid="stTextInput"] input,
         [data-testid="stNumberInput"] input,
         textarea {
-            border-radius: 8px !important; border-color: #CBD5E1 !important;
-            background: white !important;
+            border-radius: 10px !important; border-color: #EDE8E3 !important;
+            background: #FFFFFF !important; color: #1A1411 !important;
         }
         [data-testid="stTextInput"] input:focus,
         [data-testid="stNumberInput"] input:focus,
         textarea:focus {
-            border-color: #3B82F6 !important;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+            border-color: #E8500A !important;
+            box-shadow: 0 0 0 3px rgba(232,80,10,0.12) !important;
         }
-        [data-baseweb="select"] > div { border-radius: 8px !important; }
+        [data-baseweb="select"] > div {
+            border-radius: 10px !important; border-color: #EDE8E3 !important;
+            background: #FFFFFF !important;
+        }
 
         /* === EXPANDER === */
         [data-testid="stExpander"] details {
-            border: 1px solid #E2E8F0 !important;
-            border-radius: 12px !important;
-            background: white !important;
-            box-shadow: 0 1px 4px rgba(15,23,42,0.05);
+            border: 1px solid #EDE8E3 !important;
+            border-radius: 14px !important;
+            background: #FFFFFF !important;
+            box-shadow: 0 1px 3px rgba(26,20,17,0.04);
             margin-bottom: 0.5rem;
             overflow: hidden;
         }
         [data-testid="stExpander"] summary {
-            font-weight: 600 !important; color: #374151 !important;
-            padding: 0.875rem 1.1rem !important; font-size: 0.85rem !important;
+            font-weight: 600 !important; color: #2D2420 !important;
+            padding: 0.9rem 1.1rem !important; font-size: 0.85rem !important;
         }
-        [data-testid="stExpander"] summary:hover { background: #F8FAFC; }
+        [data-testid="stExpander"] summary:hover { background: #FAF7F4; }
 
         /* === ALERTS === */
         [data-testid="stAlert"] {
-            border-radius: 10px !important; border-left-width: 4px !important;
-            font-size: 0.85rem !important;
+            border-radius: 12px !important; border-left-width: 4px !important;
+            font-size: 0.85rem !important; background: #FFFFFF !important;
         }
 
         /* === CONTAINERS === */
         [data-testid="stVerticalBlockBorderWrapper"] > div {
-            border-radius: 14px !important; border-color: #E2E8F0 !important;
-            background: white !important;
-            box-shadow: 0 2px 8px rgba(15,23,42,0.07) !important;
+            border-radius: 16px !important; border-color: #EDE8E3 !important;
+            background: #FFFFFF !important;
+            box-shadow: 0 1px 4px rgba(26,20,17,0.06) !important;
         }
 
         /* === PROGRESS BAR === */
-        [data-testid="stProgressBar"] > div { border-radius: 999px; background: #DBEAFE; }
+        [data-testid="stProgressBar"] > div { border-radius: 999px; background: #F4D5C4; }
         [data-testid="stProgressBar"] > div > div {
-            background: linear-gradient(90deg, #1D4ED8, #60A5FA) !important;
+            background: linear-gradient(90deg, #C84B0F, #E8500A) !important;
             border-radius: 999px;
         }
 
         /* === IMAGES === */
         div[data-testid='stImage'] img {
             max-height: 60vh; width: auto !important; margin: 0 auto; display: block;
-            border-radius: 10px; box-shadow: 0 4px 20px rgba(15,23,42,0.12);
+            border-radius: 12px; box-shadow: 0 4px 20px rgba(26,20,17,0.10);
             transition: transform 0.12s ease;
         }
         div[data-testid='stImage'] img:hover { transform: scale(1.03); }
@@ -3374,8 +3390,16 @@ def main() -> None:
         /* === CODE BLOCK === */
         [data-testid="stCode"] { border-radius: 10px !important; font-size: 0.78rem !important; }
 
+        /* === CHECKBOX === */
+        [data-testid="stCheckbox"] span { color: #5C4F46 !important; font-size: 0.85rem !important; }
+
         /* === DIVIDER === */
-        hr { border-color: #E2E8F0 !important; margin: 1rem 0 !important; }
+        hr { border-color: #EDE8E3 !important; margin: 1.25rem 0 !important; }
+
+        /* === CAPTION / SMALL TEXT === */
+        [data-testid="stCaptionContainer"] p {
+            color: #9C8F85 !important; font-size: 0.8rem !important;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -3384,9 +3408,16 @@ def main() -> None:
     # --- Sidebar ---
     st.sidebar.markdown(
         """
-        <div style="padding:1.25rem 0.5rem 0.75rem;
-                    font-size:0.6rem;font-weight:800;letter-spacing:0.18em;color:#475569;">
-            📦 &nbsp;INSPECTION APP
+        <div style="padding:1.5rem 1rem 1rem; display:flex; align-items:center; gap:0.6rem;">
+            <div style="background:#E8500A; border-radius:10px; width:32px; height:32px;
+                        display:flex; align-items:center; justify-content:center;
+                        font-size:1rem; flex-shrink:0;">📦</div>
+            <div>
+                <div style="font-size:0.8rem; font-weight:800; color:#1A1411;
+                            letter-spacing:-0.01em;">Inspection</div>
+                <div style="font-size:0.68rem; color:#9C8F85; font-weight:500;">
+                    Return QC · AI</div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
