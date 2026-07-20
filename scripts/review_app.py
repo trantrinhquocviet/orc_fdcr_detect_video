@@ -3275,19 +3275,24 @@ def main() -> None:
              text-transform: uppercase; letter-spacing: 0.08em; }
 
         /* === METRIC CARDS === */
-        [data-testid="stMetric"] {
-            background: #FFFFFF;
-            border: 1px solid #EDE8E3;
-            border-radius: 14px;
+        [data-testid="stMetric"],
+        div[data-testid="metric-container"] {
+            background: #FFFFFF !important;
+            border: 1.5px solid #D9D0C8 !important;
+            border-radius: 14px !important;
             padding: 1.1rem 1.25rem !important;
-            box-shadow: 0 1px 3px rgba(26,20,17,0.05);
+            box-shadow: 0 2px 6px rgba(26,20,17,0.07) !important;
         }
-        [data-testid="stMetricLabel"] p {
+        [data-testid="stMetricLabel"] p,
+        [data-testid="stMetricLabel"] {
             color: #9C8F85 !important; font-size: 0.68rem !important;
             font-weight: 700 !important; text-transform: uppercase;
             letter-spacing: 0.08em !important;
         }
-        [data-testid="stMetricValue"] { color: #1A1411 !important; font-weight: 800 !important; }
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricValue"] div {
+            color: #1A1411 !important; font-weight: 800 !important;
+        }
 
         /* === BUTTONS === */
         button[kind="primary"] {
@@ -3315,14 +3320,16 @@ def main() -> None:
         button:disabled { opacity: 0.4 !important; }
 
         /* === FILE UPLOADER — dashed dropzone === */
-        [data-testid="stFileUploader"] {
-            background: #FFFFFF;
-            border: 2px dashed #D4C9C2 !important;
+        [data-testid="stFileUploader"],
+        [data-testid="stFileUploaderDropzone"],
+        section[data-testid="stFileUploader"] {
+            background: #FFFFFF !important;
+            border: 2px dashed #C5BAB2 !important;
             border-radius: 16px !important;
-            padding: 1.5rem !important;
             transition: border-color 0.2s;
         }
-        [data-testid="stFileUploader"]:hover { border-color: #E8500A !important; }
+        [data-testid="stFileUploader"]:hover,
+        [data-testid="stFileUploaderDropzone"]:hover { border-color: #E8500A !important; }
         [data-testid="stFileUploader"] label { font-weight: 600 !important; color: #2D2420 !important; }
         [data-testid="stFileUploader"] small { color: #9C8F85 !important; }
 
@@ -3345,19 +3352,24 @@ def main() -> None:
         }
 
         /* === EXPANDER === */
-        [data-testid="stExpander"] details {
-            border: 1px solid #EDE8E3 !important;
+        [data-testid="stExpander"],
+        [data-testid="stExpander"] details,
+        div[data-testid="stExpander"] > div {
+            border: 1.5px solid #D9D0C8 !important;
             border-radius: 14px !important;
             background: #FFFFFF !important;
-            box-shadow: 0 1px 3px rgba(26,20,17,0.04);
+            box-shadow: 0 1px 4px rgba(26,20,17,0.05) !important;
             margin-bottom: 0.5rem;
             overflow: hidden;
         }
-        [data-testid="stExpander"] summary {
+        [data-testid="stExpander"] summary,
+        [data-testid="stExpander"] [role="button"] {
             font-weight: 600 !important; color: #2D2420 !important;
             padding: 0.9rem 1.1rem !important; font-size: 0.85rem !important;
+            background: #FFFFFF;
         }
-        [data-testid="stExpander"] summary:hover { background: #FAF7F4; }
+        [data-testid="stExpander"] summary:hover,
+        [data-testid="stExpander"] [role="button"]:hover { background: #FAF7F4 !important; }
 
         /* === ALERTS === */
         [data-testid="stAlert"] {
@@ -3366,10 +3378,14 @@ def main() -> None:
         }
 
         /* === CONTAINERS === */
-        [data-testid="stVerticalBlockBorderWrapper"] > div {
-            border-radius: 16px !important; border-color: #EDE8E3 !important;
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stVerticalBlockBorderWrapper"] > div,
+        div[data-testid="stVerticalBlock"][style*="border"] {
+            border: 1.5px solid #D9D0C8 !important;
+            border-radius: 16px !important;
             background: #FFFFFF !important;
-            box-shadow: 0 1px 4px rgba(26,20,17,0.06) !important;
+            box-shadow: 0 2px 8px rgba(26,20,17,0.06) !important;
+            padding: 1rem !important;
         }
 
         /* === PROGRESS BAR === */
