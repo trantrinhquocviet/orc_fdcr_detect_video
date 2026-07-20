@@ -3195,227 +3195,200 @@ def main() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Styrene+B:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
-        /* === BASE === */
+        /* === BASE — Claude.ai palette === */
+        /* bg: #F5F0E8  sidebar: #1C1917  accent: #D97706 (amber) */
         html, body, [class*="css"] { font-family: 'Inter', -apple-system, sans-serif !important; }
-        .stApp { background-color: #FAF7F4; }
-        .block-container { padding-top: 1.75rem !important; padding-bottom: 2.5rem !important;
-                           max-width: 1100px; }
+        .stApp { background-color: #F5F0E8; }
+        .block-container { padding-top: 1.75rem !important; padding-bottom: 2.5rem !important; }
 
-        /* === SIDEBAR === */
+        /* === SIDEBAR — Claude dark === */
         [data-testid="stSidebar"] {
-            background: #FFFFFF;
-            border-right: 1px solid #EDE8E3;
+            background-color: #1C1917;
+            border-right: 1px solid #292524;
         }
+        [data-testid="stSidebar"] * { color: #A8A29E; }
         [data-testid="stSidebar"] .stSelectbox label,
-        [data-testid="stSidebar"] .stCheckbox span,
-        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] .stCheckbox span p,
         [data-testid="stSidebar"] small {
-            color: #9C8F85 !important;
-            font-size: 0.7rem !important;
-            font-weight: 700 !important;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
+            color: #78716C !important;
+            font-size: 0.68rem !important; font-weight: 700 !important;
+            text-transform: uppercase; letter-spacing: 0.09em;
         }
         [data-testid="stSidebar"] [data-baseweb="select"] > div {
-            background-color: #FAF7F4 !important;
-            border-color: #EDE8E3 !important;
+            background: #292524 !important; border-color: #3C3733 !important;
             border-radius: 10px !important;
-            color: #1A1411 !important;
         }
-        [data-testid="stSidebar"] [data-baseweb="select"] span { color: #1A1411 !important; }
-        [data-testid="stSidebar"] hr { border-color: #EDE8E3 !important; margin: 0.75rem 0 !important; }
+        [data-testid="stSidebar"] [data-baseweb="select"] span,
+        [data-testid="stSidebar"] [data-baseweb="select"] div { color: #E7E5E4 !important; }
+        [data-testid="stSidebar"] svg { fill: #57534E !important; }
+        [data-testid="stSidebar"] hr { border-color: #292524 !important; margin: 0.6rem 0 !important; }
         [data-testid="stSidebar"] button {
-            background: #FAF7F4 !important; color: #5C4F46 !important;
-            border: 1px solid #EDE8E3 !important; border-radius: 8px !important;
-            font-size: 0.8rem !important; font-weight: 600 !important;
+            background: #292524 !important; color: #A8A29E !important;
+            border: 1px solid #3C3733 !important; border-radius: 8px !important;
+            font-size: 0.78rem !important; font-weight: 600 !important;
         }
         [data-testid="stSidebar"] button:hover {
-            background: #FFF0EA !important; color: #C84B0F !important;
-            border-color: #F4B8A0 !important;
+            background: #3C3733 !important; color: #F59E0B !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stExpander"],
+        [data-testid="stSidebar"] [data-testid="stExpander"] details,
+        [data-testid="stSidebar"] [data-testid="stExpander"] > div {
+            background: #292524 !important; border-color: #3C3733 !important;
+            box-shadow: none !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stExpander"] summary,
+        [data-testid="stSidebar"] [data-testid="stExpander"] [role="button"] {
+            color: #A8A29E !important; background: #292524 !important;
         }
 
-        /* === TABS — pill style === */
+        /* === TABS — pill như Claude === */
         [data-testid="stTabs"] [data-baseweb="tab-list"] {
-            background: #EDEAE6;
-            border-radius: 12px;
-            padding: 4px;
-            gap: 2px;
-            border-bottom: none !important;
-            display: inline-flex;
+            background: #E8E0D6;
+            border-radius: 12px; padding: 4px; gap: 2px;
+            border-bottom: none !important; width: fit-content;
         }
         [data-testid="stTabs"] [data-baseweb="tab"] {
-            background: transparent;
-            border-radius: 9px;
-            border: none;
-            padding: 0.5rem 1.1rem;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #7A6E67;
-            transition: all 0.15s ease;
+            background: transparent; border-radius: 9px; border: none;
+            padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 600;
+            color: #78716C; transition: all 0.15s ease;
         }
-        [data-testid="stTabs"] [data-baseweb="tab"]:hover { color: #C84B0F; }
+        [data-testid="stTabs"] [data-baseweb="tab"]:hover { color: #B45309; background: #F5EFE6; }
         [data-testid="stTabs"] [aria-selected="true"] {
-            background: #FFFFFF !important;
-            color: #C84B0F !important;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+            background: #FFFFFF !important; color: #B45309 !important;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.12) !important;
         }
         [data-testid="stTabs"] [data-testid="stMarkdownContainer"] { padding-top: 1.5rem; }
 
         /* === HEADINGS === */
-        h1 {
-            font-size: 1.5rem !important; font-weight: 800 !important;
-            color: #1A1411 !important; letter-spacing: -0.025em;
-            margin-bottom: 0.15rem !important;
-        }
-        h1 + div p, h1 + p { color: #9C8F85 !important; font-size: 0.875rem !important; }
-        h2 { font-size: 1.05rem !important; font-weight: 700 !important; color: #2D2420 !important; }
-        h3 { font-size: 0.78rem !important; font-weight: 700 !important; color: #9C8F85 !important;
-             text-transform: uppercase; letter-spacing: 0.08em; }
+        h1 { font-size: 1.5rem !important; font-weight: 700 !important;
+             color: #1C1917 !important; letter-spacing: -0.02em; margin-bottom: 0.1rem !important; }
+        h2 { font-size: 1rem !important; font-weight: 700 !important; color: #292524 !important; }
+        h3 { font-size: 0.72rem !important; font-weight: 700 !important; color: #A8A29E !important;
+             text-transform: uppercase; letter-spacing: 0.1em; }
 
-        /* === METRIC CARDS === */
+        /* === CARDS (metric, expander, container) === */
         [data-testid="stMetric"],
         div[data-testid="metric-container"] {
-            background: #FFFFFF !important;
-            border: 1.5px solid #D9D0C8 !important;
+            background: #FFFBF5 !important;
+            border: 1px solid #D6CEC4 !important;
             border-radius: 14px !important;
-            padding: 1.1rem 1.25rem !important;
-            box-shadow: 0 2px 6px rgba(26,20,17,0.07) !important;
+            padding: 1rem 1.2rem !important;
+            box-shadow: 0 1px 4px rgba(28,25,23,0.06) !important;
         }
-        [data-testid="stMetricLabel"] p,
-        [data-testid="stMetricLabel"] {
-            color: #9C8F85 !important; font-size: 0.68rem !important;
-            font-weight: 700 !important; text-transform: uppercase;
-            letter-spacing: 0.08em !important;
+        [data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] {
+            color: #A8A29E !important; font-size: 0.67rem !important;
+            font-weight: 700 !important; text-transform: uppercase; letter-spacing: 0.09em !important;
         }
-        [data-testid="stMetricValue"],
-        [data-testid="stMetricValue"] div {
-            color: #1A1411 !important; font-weight: 800 !important;
+        [data-testid="stMetricValue"], [data-testid="stMetricValue"] div {
+            color: #1C1917 !important; font-weight: 700 !important;
+        }
+
+        [data-testid="stExpander"],
+        [data-testid="stExpander"] details,
+        div[data-testid="stExpander"] > div {
+            background: #FFFBF5 !important;
+            border: 1px solid #D6CEC4 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 1px 3px rgba(28,25,23,0.05) !important;
+            margin-bottom: 0.5rem; overflow: hidden;
+        }
+        [data-testid="stExpander"] summary,
+        [data-testid="stExpander"] [role="button"] {
+            font-weight: 600 !important; color: #292524 !important;
+            padding: 0.85rem 1.1rem !important; font-size: 0.85rem !important;
+            background: #FFFBF5 !important;
+        }
+        [data-testid="stExpander"] summary:hover,
+        [data-testid="stExpander"] [role="button"]:hover { background: #F5EDE0 !important; }
+
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stVerticalBlockBorderWrapper"] > div {
+            background: #FFFBF5 !important;
+            border: 1px solid #D6CEC4 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 1px 4px rgba(28,25,23,0.06) !important;
+            padding: 1.1rem !important;
         }
 
         /* === BUTTONS === */
         button[kind="primary"] {
-            background: #E8500A !important;
-            border: none !important; border-radius: 10px !important;
-            font-weight: 700 !important; letter-spacing: 0.01em !important;
-            box-shadow: 0 2px 10px rgba(232,80,10,0.30) !important;
-            transition: all 0.18s ease !important;
+            background: #D97706 !important; border: none !important;
+            border-radius: 10px !important; font-weight: 600 !important;
             color: #FFFFFF !important;
+            box-shadow: 0 1px 6px rgba(217,119,6,0.35) !important;
+            transition: all 0.16s ease !important;
         }
         button[kind="primary"]:hover:not(:disabled) {
-            background: #C84B0F !important;
-            box-shadow: 0 4px 18px rgba(232,80,10,0.40) !important;
+            background: #B45309 !important;
+            box-shadow: 0 3px 14px rgba(217,119,6,0.45) !important;
             transform: translateY(-1px) !important;
         }
         button[kind="secondary"] {
-            border-radius: 10px !important; border: 1.5px solid #EDE8E3 !important;
-            font-weight: 600 !important; color: #5C4F46 !important;
-            background: #FFFFFF !important; transition: all 0.15s ease !important;
+            border-radius: 10px !important; border: 1px solid #D6CEC4 !important;
+            font-weight: 600 !important; color: #57534E !important;
+            background: #FFFBF5 !important; transition: all 0.15s ease !important;
         }
         button[kind="secondary"]:hover:not(:disabled) {
-            border-color: #F4B8A0 !important; color: #C84B0F !important;
-            background: #FFF5F0 !important;
+            border-color: #F59E0B !important; color: #B45309 !important;
+            background: #FFFBEE !important;
         }
-        button:disabled { opacity: 0.4 !important; }
-
-        /* === FILE UPLOADER — dashed dropzone === */
-        [data-testid="stFileUploader"],
-        [data-testid="stFileUploaderDropzone"],
-        section[data-testid="stFileUploader"] {
-            background: #FFFFFF !important;
-            border: 2px dashed #C5BAB2 !important;
-            border-radius: 16px !important;
-            transition: border-color 0.2s;
-        }
-        [data-testid="stFileUploader"]:hover,
-        [data-testid="stFileUploaderDropzone"]:hover { border-color: #E8500A !important; }
-        [data-testid="stFileUploader"] label { font-weight: 600 !important; color: #2D2420 !important; }
-        [data-testid="stFileUploader"] small { color: #9C8F85 !important; }
+        button:disabled { opacity: 0.38 !important; }
 
         /* === INPUTS === */
         [data-testid="stTextInput"] input,
-        [data-testid="stNumberInput"] input,
-        textarea {
-            border-radius: 10px !important; border-color: #EDE8E3 !important;
-            background: #FFFFFF !important; color: #1A1411 !important;
+        [data-testid="stNumberInput"] input, textarea {
+            border-radius: 10px !important; border-color: #D6CEC4 !important;
+            background: #FFFBF5 !important; color: #1C1917 !important;
         }
         [data-testid="stTextInput"] input:focus,
-        [data-testid="stNumberInput"] input:focus,
-        textarea:focus {
-            border-color: #E8500A !important;
-            box-shadow: 0 0 0 3px rgba(232,80,10,0.12) !important;
+        [data-testid="stNumberInput"] input:focus, textarea:focus {
+            border-color: #D97706 !important;
+            box-shadow: 0 0 0 3px rgba(217,119,6,0.14) !important;
         }
         [data-baseweb="select"] > div {
-            border-radius: 10px !important; border-color: #EDE8E3 !important;
-            background: #FFFFFF !important;
+            border-radius: 10px !important; border-color: #D6CEC4 !important;
+            background: #FFFBF5 !important;
         }
 
-        /* === EXPANDER === */
-        [data-testid="stExpander"],
-        [data-testid="stExpander"] details,
-        div[data-testid="stExpander"] > div {
-            border: 1.5px solid #D9D0C8 !important;
-            border-radius: 14px !important;
-            background: #FFFFFF !important;
-            box-shadow: 0 1px 4px rgba(26,20,17,0.05) !important;
-            margin-bottom: 0.5rem;
-            overflow: hidden;
+        /* === FILE UPLOADER === */
+        [data-testid="stFileUploaderDropzone"],
+        [data-testid="stFileUploader"] section {
+            background: #FFFBF5 !important;
+            border: 2px dashed #C4BAB0 !important;
+            border-radius: 16px !important; transition: border-color 0.2s;
         }
-        [data-testid="stExpander"] summary,
-        [data-testid="stExpander"] [role="button"] {
-            font-weight: 600 !important; color: #2D2420 !important;
-            padding: 0.9rem 1.1rem !important; font-size: 0.85rem !important;
-            background: #FFFFFF;
-        }
-        [data-testid="stExpander"] summary:hover,
-        [data-testid="stExpander"] [role="button"]:hover { background: #FAF7F4 !important; }
+        [data-testid="stFileUploaderDropzone"]:hover { border-color: #D97706 !important; }
 
         /* === ALERTS === */
         [data-testid="stAlert"] {
             border-radius: 12px !important; border-left-width: 4px !important;
-            font-size: 0.85rem !important; background: #FFFFFF !important;
-        }
-
-        /* === CONTAINERS === */
-        [data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stVerticalBlockBorderWrapper"] > div,
-        div[data-testid="stVerticalBlock"][style*="border"] {
-            border: 1.5px solid #D9D0C8 !important;
-            border-radius: 16px !important;
-            background: #FFFFFF !important;
-            box-shadow: 0 2px 8px rgba(26,20,17,0.06) !important;
-            padding: 1rem !important;
+            font-size: 0.84rem !important; background: #FFFBF5 !important;
         }
 
         /* === PROGRESS BAR === */
-        [data-testid="stProgressBar"] > div { border-radius: 999px; background: #F4D5C4; }
+        [data-testid="stProgressBar"] > div { border-radius: 999px; background: #E8D9B8; }
         [data-testid="stProgressBar"] > div > div {
-            background: linear-gradient(90deg, #C84B0F, #E8500A) !important;
+            background: linear-gradient(90deg, #B45309, #D97706) !important;
             border-radius: 999px;
         }
 
         /* === IMAGES === */
         div[data-testid='stImage'] img {
             max-height: 60vh; width: auto !important; margin: 0 auto; display: block;
-            border-radius: 12px; box-shadow: 0 4px 20px rgba(26,20,17,0.10);
+            border-radius: 12px; box-shadow: 0 4px 18px rgba(28,25,23,0.12);
             transition: transform 0.12s ease;
         }
         div[data-testid='stImage'] img:hover { transform: scale(1.03); }
 
-        /* === CODE BLOCK === */
+        /* === CODE === */
         [data-testid="stCode"] { border-radius: 10px !important; font-size: 0.78rem !important; }
 
-        /* === CHECKBOX === */
-        [data-testid="stCheckbox"] span { color: #5C4F46 !important; font-size: 0.85rem !important; }
-
-        /* === DIVIDER === */
-        hr { border-color: #EDE8E3 !important; margin: 1.25rem 0 !important; }
-
-        /* === CAPTION / SMALL TEXT === */
-        [data-testid="stCaptionContainer"] p {
-            color: #9C8F85 !important; font-size: 0.8rem !important;
-        }
+        /* === MISC === */
+        hr { border-color: #D6CEC4 !important; margin: 1.25rem 0 !important; }
+        [data-testid="stCaptionContainer"] p { color: #A8A29E !important; font-size: 0.8rem !important; }
+        [data-testid="stCheckbox"] span { color: #57534E !important; font-size: 0.85rem !important; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -3424,15 +3397,15 @@ def main() -> None:
     # --- Sidebar ---
     st.sidebar.markdown(
         """
-        <div style="padding:1.5rem 1rem 1rem; display:flex; align-items:center; gap:0.6rem;">
-            <div style="background:#E8500A; border-radius:10px; width:32px; height:32px;
+        <div style="padding:1.4rem 1rem 1rem; display:flex; align-items:center; gap:0.65rem;">
+            <div style="background:#D97706; border-radius:10px; width:34px; height:34px;
                         display:flex; align-items:center; justify-content:center;
-                        font-size:1rem; flex-shrink:0;">📦</div>
+                        font-size:1.05rem; flex-shrink:0; box-shadow:0 2px 8px rgba(217,119,6,0.4);">📦</div>
             <div>
-                <div style="font-size:0.8rem; font-weight:800; color:#1A1411;
-                            letter-spacing:-0.01em;">Inspection</div>
-                <div style="font-size:0.68rem; color:#9C8F85; font-weight:500;">
-                    Return QC · AI</div>
+                <div style="font-size:0.85rem; font-weight:700; color:#E7E5E4;
+                            letter-spacing:-0.01em; line-height:1.2;">Inspection</div>
+                <div style="font-size:0.67rem; color:#57534E; font-weight:500;
+                            text-transform:uppercase; letter-spacing:0.07em;">Return QC · AI</div>
             </div>
         </div>
         """,
