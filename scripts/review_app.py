@@ -3207,7 +3207,6 @@ def _login_gate() -> bool:
         # No password configured — allow access (local dev or unprotected deploy).
         return True
 
-    st.set_page_config(page_title="Login — Inspection app", layout="centered")
     st.title("🔐 Inspection App")
     st.markdown("Nhập mật khẩu để tiếp tục.")
     pwd = st.text_input("Mật khẩu", type="password", key="_login_pwd")
@@ -3220,109 +3219,10 @@ def _login_gate() -> bool:
     return False
 
 
-_ONBOARDING_STEPS = [
-    {
-        "title": "👋 Chào mừng đến với Inspection App",
-        "body": """
-App này giúp bạn **kiểm tra kiện hàng hoàn trả** bằng AI (YOLOv8).
-
-Quy trình gồm 3 bước chính:
-
-| Bước | Việc cần làm |
-|------|-------------|
-| 1️⃣ Import | Đưa ảnh/video vào dataset |
-| 2️⃣ Label | Vẽ bounding box cho từng vật thể |
-| 3️⃣ Review | Kiểm tra lại chất lượng nhãn |
-
-Wizard này sẽ hướng dẫn bạn qua từng bước.
-        """,
-    },
-    {
-        "title": "1️⃣ Import frames",
-        "body": """
-**Tab: Import frames**
-
-- Upload ảnh hoặc video trực tiếp từ máy tính
-- App tự trích xuất frames từ video
-- Mỗi lần import tạo một **version** mới (tránh xung đột với data cũ)
-
-**Lưu ý tên file:** `<video_id>_fNNNN.jpg`
-- `video_id`: chỉ dùng chữ + số + dấu gạch ngang (không dùng gạch dưới)
-- Ví dụ: `cam1-2024-01-15_f0001.jpg` ✅
-        """,
-    },
-    {
-        "title": "2️⃣ Label",
-        "body": """
-**Tab: Label**
-
-Dùng tab này để:
-- Xem ảnh và vẽ/chỉnh sửa bounding box trực tiếp
-- Gán nhãn: **damaged_item** hoặc **empty_box**
-- Assign frame cho từng thành viên team
-
-**Tip:** Chọn video_id cụ thể trong sidebar để focus vào từng video.
-        """,
-    },
-    {
-        "title": "3️⃣ Review",
-        "body": """
-**Tab: Review**
-
-Sau khi label xong, vào đây để:
-- Xem lại từng ảnh với bounding box đã vẽ
-- Đánh dấu **Correct / Incorrect** cho từng ảnh
-- Filter theo video_id hoặc class
-
-Khi đủ **≥40 frames** có nhãn từ **≥4 video khác nhau**, bạn có thể bắt đầu training.
-        """,
-    },
-    {
-        "title": "✅ Sẵn sàng rồi!",
-        "body": """
-Bạn đã nắm được quy trình cơ bản.
-
-**Bắt đầu ngay:**
-1. Click tab **Import frames**
-2. Upload video hoặc ảnh đầu tiên
-3. Bắt đầu label
-
-Nếu cần xem lại hướng dẫn, click **"Hướng dẫn"** ở sidebar bất cứ lúc nào.
-        """,
-    },
-]
-
-
-def _onboarding_wizard() -> None:
-    """Show onboarding wizard. Sets session_state.onboarding_done when finished."""
-    step = st.session_state.get("onboarding_step", 0)
-    total = len(_ONBOARDING_STEPS)
-    current = _ONBOARDING_STEPS[step]
-
-    st.progress((step) / (total - 1), text=f"Bước {step + 1} / {total}")
-    st.markdown(f"## {current['title']}")
-    st.markdown(current["body"])
-    st.markdown("---")
-
-    col_back, col_spacer, col_next = st.columns([1, 4, 1])
-    if step > 0:
-        if col_back.button("← Quay lại"):
-            st.session_state["onboarding_step"] = step - 1
-            st.rerun()
-    if step < total - 1:
-        if col_next.button("Tiếp theo →", type="primary"):
-            st.session_state["onboarding_step"] = step + 1
-            st.rerun()
-    else:
-        if col_next.button("Bắt đầu dùng app →", type="primary"):
-            st.session_state["onboarding_done"] = True
-            st.rerun()
-
-
 def main() -> None:
+    st.set_page_config(page_title="Inspection app", layout="wide")
     if not _login_gate():
         st.stop()
-    st.set_page_config(page_title="Inspection app", layout="wide")
     st.markdown(
         """
         <style>
@@ -3338,16 +3238,6 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    # Show onboarding wizard on first visit
-    if not st.session_state.get("onboarding_done"):
-        _onboarding_wizard()
-        st.stop()
-
-    # Nút xem lại hướng dẫn
-    if st.sidebar.button("📖 Hướng dẫn"):
-        st.session_state["onboarding_done"] = False
-        st.session_state["onboarding_step"] = 0
-        st.rerun()
     st.sidebar.markdown("---")
 
     # One shared task selector — both tabs read this. Streamlit tabs do not
