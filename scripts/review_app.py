@@ -3195,11 +3195,11 @@ def main() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Styrene+B:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
-
         /* === BASE — Claude.ai palette === */
         /* bg: #F5F0E8  sidebar: #1C1917  accent: #D97706 (amber) */
-        html, body, [class*="css"] { font-family: 'Inter', -apple-system, sans-serif !important; }
+        html, body, [class*="css"] {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+        }
         .stApp { background-color: #F5F0E8; }
         .block-container { padding-top: 1.75rem !important; padding-bottom: 2.5rem !important; }
 
